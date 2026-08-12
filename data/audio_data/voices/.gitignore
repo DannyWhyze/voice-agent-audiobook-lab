@@ -1,0 +1,15 @@
+models/
+sample_*.wav
+*.wav
+!ref_audio.wav
+!voices/*.wav
+!german/*.wav
+!english/*.wav
+*.json
+__pycache__/
+*.pyc
+.venv/
+.cache/
+outputs/
+artifacts/
+packages/qwentts_cpp_python/

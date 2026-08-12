@@ -1,0 +1,36 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    {
+      "identifier": "shell:allow-execute",
+      "allow": [
+        {
+          "name": "orchestrator",
+          "cmd": "orchestrator.exe",
+          "sidecar": false,
+          "args": [
+            {
+              "validator": "\\S+"
+            }
+          ]
+        },
+        {
+          "name": "engine",
+          "cmd": "s2.exe",
+          "sidecar": false,
+          "args": [
+            {
+              "validator": "\\S+"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

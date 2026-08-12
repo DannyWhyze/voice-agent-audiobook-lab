@@ -1,0 +1,157 @@
+.explorer-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.explorer-row {
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.explorer-row-name {
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.explorer-row-empty {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.explorer-row-clickable {
+    cursor: pointer;
+}
+
+.explorer-row-clickable:hover {
+    border-color: var(--color-accent);
+}
+
+.explorer-controls-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.explorer-download-all-mp3-checkbox {
+    margin: 0;
+}
+
+.explorer-download-all-mp3-label {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
+.explorer-play-all-btn,
+.explorer-download-all-btn {
+    flex: 0 0 auto;
+    align-self: center;
+    margin-top: 0;
+    font-size: 1rem;
+    line-height: 1;
+    padding: 6px 12px;
+}
+
+.project-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.project-panel-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.project-panel-row select,
+.project-panel-row button {
+    width: auto;
+    height: 32px;
+    box-sizing: border-box;
+}
+
+.project-panel-row button {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.project-panel-row select {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inline-name-form {
+    display: flex;
+    gap: 6px;
+}
+
+.chapter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.chapter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.chapter-chip.active {
+    background: var(--color-accent);
+    color: #fff;
+}
+
+.chapter-chip.dragging {
+    opacity: 0.5;
+}
+
+.chapter-chip.drag-over {
+    outline: 2px dashed var(--color-accent);
+}
+
+.chapter-chip-delete {
+    opacity: 0.6;
+}
+
+.chapter-chip-delete:hover {
+    opacity: 1;
+}
+
+.chapter-chip-rename {
+    opacity: 0.6;
+}
+
+.chapter-chip-rename:hover {
+    opacity: 1;
+}
+
+.chapter-chip-rename-input {
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+    font-family: inherit;
+    width: 8em;
+    padding: 0;
+}

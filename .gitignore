@@ -1,0 +1,45 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.agents
+.env
+
+# Tauri
+src-tauri/binaries
+dist_test
+
+# Node (frontend tests)
+node_modules
+fish-speech-repo
+s2cpp-import
+checkpoints
+src/engine/*.dll
+src/engine/*.exe
+src/engine/*.gguf
+src/engine/tokenizer.json
+
+
+docs_dw
+.claude
+
+plans
+
+data/output/fishaudio_test_output.wav
+data/output/s2cpp_engine_test.wav
+data/output/s2cpp_test.wav
+data/dialog_projects
+s2_bridge.py
+.superpowers
+image.png
+data/output
+legacy_scripts
+improvement.md
+rembemberDW.txt
+data/audio_data/voices/legacy_voices

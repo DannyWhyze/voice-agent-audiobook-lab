@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/frontend/**/*.test.js"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4",
+    "jsdom": "^25.0.1"
+  }
+}

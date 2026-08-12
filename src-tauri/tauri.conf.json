@@ -1,0 +1,42 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "fishaudio_s2_pro",
+  "version": "0.1.0",
+  "identifier": "com.dannysohn.fishaudio-s2-pro",
+  "build": {
+    "frontendDist": "../static"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Bars2Bars Fishaudio-S2Pro-Lab",
+        "url": "loading.html",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": {
+      "../src/engine": "engine/",
+      "../dist/orchestrator": "orchestrator/"
+    },
+    "android": {
+      "debugApplicationIdSuffix": ".debug"
+    }
+  }
+}

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bars2Bars_s2_pro_lab</title>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/layout.css">
+  <link rel="stylesheet" href="/static/css/explorer-and-projects.css">
+  <link rel="stylesheet" href="/static/css/dialog-boxes.css">
+  <link rel="stylesheet" href="/static/css/script-mode.css">
+  <link rel="stylesheet" href="/static/css/compressor-overlay.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="engine-loading-overlay" class="engine-loading-overlay">
+    <div class="engine-loading-spinner" aria-hidden="true"></div>
+    <p data-i18n="engineLoadingMessage"></p>
+  </div>
+
+  <div class="workspace-container">
+    <div class="explorer-wrapper">
+      <div class="explorer-sticky-stack">
+        <div id="dialog-explorer-card" class="card explorer-card" hidden>
+          <label data-i18n="explorerTitle"></label>
+          <div id="chapter-explorer" class="explorer-list"></div>
+        </div>
+        <div id="skills-files-explorer-card" class="card explorer-card">
+          <label data-i18n="skillsFilesExplorerTitle"></label>
+          <div id="skills-files-explorer-list" class="explorer-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card main-card">
+      <div class="header-row">
+        <h1>Bars2Bars Fishaudio-S2Pro-Lab</h1>
+        <div class="header-controls-right">
+          <a href="/" id="back-to-landing-link" class="btn-compact btn-icon" data-i18n-title="homeLinkTitle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 11.5 12 4l9 7.5" />
+              <path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9" />
+            </svg>
+          </a>
+          <button type="button" id="skills-files-btn" class="btn-compact btn-icon" data-i18n-title="skillsFilesBtnTitle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 3h8l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z" />
+              <path d="M14 3v4a1 1 0 0 0 1 1h4" />
+              <path d="M8 13h8M8 17h5" />
+            </svg>
+          </button>
+          <button type="button" id="project-chat-btn" class="btn-compact btn-icon" data-i18n-title="projectChatBtnTitle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 4h16a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z" />
+            </svg>
+          </button>
+
+          <button type="button" id="voices-btn" class="btn-compact btn-icon" data-i18n-title="voicesBtnTitle">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </button>
+          <button type="button" id="theme-toggle-btn" class="btn-compact"></button>
+          <button type="button" id="language-toggle-btn" class="btn-compact">EN</button>
+
+        </div>
+      </div>
+      <div class="llm-select-bar">
+        <label for="global-llm-select" data-i18n="llmSelectTitle">LLM-Modell:</label>
+        <select id="global-llm-select" class="select-compact" data-i18n-title="llmSelectTitle">
+          <option value="ollama:none" disabled data-i18n="llmOllamaNoneFound">Ollama: keine Modelle gefunden</option>
+          <option value="nvidia:fetch" data-i18n="llmNvidiaFetch">NVIDIA (Modelle laden...)</option>
+        </select>
+        <button type="button" id="global-llm-fetch-btn" class="btn-compact" hidden data-i18n="llmFetchBtn">Laden</button>
+      </div>
+
+    <div class="tabs">
+      <button type="button" class="tab-button active" data-tab="single" data-i18n="tabSingle"></button>
+      <button type="button" class="tab-button" data-tab="dialog" data-i18n="tabDialog"></button>
+    </div>
+
+    <div id="tab-single" class="tab-content active">
+      <div id="single-coming-soon-overlay" class="coming-soon-overlay active">
+        <h2 data-i18n="comingSoonTitle"></h2>
+        <p data-i18n="comingSoonBody"></p>
+      </div>
+      <div id="single-content" inert>
+        <form id="generate-form">
+          <div class="form-layout">
+            <div class="form-main">
+              <textarea id="text" rows="8" data-i18n-placeholder="textPlaceholder"></textarea>
+              <label for="voice" data-i18n="voiceLabel"></label>
+              <select id="voice"></select>
+              <button type="button" id="voice-preview-btn" disabled data-i18n="previewVoice" class="btn-compact"></button>
+              <audio id="voice-preview-player" controls hidden></audio>
+              <button type="submit" id="generate-btn" data-i18n="generate"></button>
+              <button type="button" id="cancel-btn" class="cancel-btn btn-compact" disabled data-i18n="cancel"></button>
+              <button type="button" id="clear-btn" data-i18n="clear" class="btn-compact"></button>
+            </div>
+            <div class="tag-panel">
+              <label data-i18n="insertTags"></label>
+              <div id="tag-list" class="tag-list"></div>
+            </div>
+          </div>
+        </form>
+        <span id="status" class="status status-idle"></span>
+        <audio id="player" controls></audio>
+        <canvas id="player-waveform" class="waveform" width="600" height="48"></canvas>
+        <a id="download-link" class="download-btn" download hidden data-i18n="download"></a>
+      </div>
+    </div>
+
+    <div id="tab-dialog" class="tab-content">
+      <div class="form-layout">
+        <div class="form-main">
+          <div class="project-panel">
+            <label data-i18n="projectLabel"></label>
+            <div class="project-panel-row">
+              <select id="project-select" class="select-compact"><option value="" data-i18n="noProject"></option></select>
+              <button type="button" id="new-project-btn" data-i18n="newProject" class="btn-compact"></button>
+              <button type="button" id="rename-project-btn" class="btn-compact" hidden data-i18n="renameProject"></button>
+              <button type="button" id="delete-project-btn" class="cancel-btn btn-compact" hidden data-i18n="deleteProject"></button>
+              <button type="button" id="project-chat-panel-btn" class="btn-compact" hidden data-i18n="projectChatBtn"></button>
+
+            </div>
+            <div id="new-project-form" class="inline-name-form" hidden>
+              <input type="text" id="new-project-name" data-i18n-placeholder="projectNamePlaceholder">
+              <button type="button" id="confirm-new-project-btn" data-i18n="create" class="btn-compact"></button>
+            </div>
+            <div id="rename-project-form" class="inline-name-form" hidden>
+              <input type="text" id="rename-project-name" data-i18n-placeholder="projectNamePlaceholder">
+              <button type="button" id="confirm-rename-project-btn" data-i18n="confirmRenameProjectBtn" class="btn-compact"></button>
+            </div>
+            <div id="chapter-chips" class="chapter-chips"></div>
+            <div id="new-chapter-form" class="inline-name-form" hidden>
+              <input type="text" id="new-chapter-name" data-i18n-placeholder="chapterNamePlaceholder">
+              <button type="button" id="confirm-new-chapter-btn" data-i18n="create" class="btn-compact"></button>
+            </div>
+          </div>
+          <div id="dialog-workspace-main" hidden>
+            <div class="dialog-list-controls-top">
+              <button type="button" id="insert-box-top-btn" data-i18n="insertBoxBefore" class="btn-compact"></button>
+              <button type="button" id="collapse-all-btn" class="pause-connector-insert-btn" data-i18n-title="collapseAllBoxes">▲</button>
+              <button type="button" id="expand-all-btn" class="pause-connector-insert-btn" data-i18n-title="expandAllBoxes">▼</button>
+              <button type="button" id="jump-to-end-btn" class="pause-connector-insert-btn" data-i18n-title="jumpToEndBoxes">⇊</button>
+            </div>
+            <div id="dialog-boxes"></div>
+            <div id="end-pause-connector" class="pause-connector" hidden>
+              <input type="number" id="end-pause-ms" class="pause-connector-input" min="0" value="0">
+              <span data-i18n="pauseConnectorSuffix"></span>
+            </div>
+            <div class="dialog-list-controls-top">
+              <button type="button" id="add-box-btn" data-i18n="addBox" class="btn-compact"></button>
+              <button type="button" id="collapse-all-btn-bottom" class="pause-connector-insert-btn" data-i18n-title="collapseAllBoxes">▲</button>
+              <button type="button" id="expand-all-btn-bottom" class="pause-connector-insert-btn" data-i18n-title="expandAllBoxes">▼</button>
+              <button type="button" id="jump-to-start-btn" class="pause-connector-insert-btn" data-i18n-title="jumpToStartBoxes">⇈</button>
+            </div>
+            <button type="button" id="toggle-script-panel-btn" class="pause-connector-insert-btn" data-i18n="scriptModeBtn"></button>
+            <div id="script-panel" class="script-panel" hidden>
+              <div class="script-panel-controls">
+                <select id="script-speaker-select" class="select-compact"></select>
+                <button type="button" id="script-insert-speaker-btn" class="pause-connector-insert-btn" data-i18n="scriptInsertSpeaker"></button>
+              </div>
+              <div class="script-editor-container">
+                <textarea id="script-textarea" rows="10" data-i18n-placeholder="scriptPlaceholder"></textarea>
+                <div id="script-highlight" class="script-highlight-overlay"></div>
+              </div>
+              <button type="button" id="script-apply-btn" data-i18n="scriptApply" class="btn-compact"></button>
+            </div>
+            <h4 class="section-divider-title" data-i18n="section-chapter-settings"></h4>
+            <div class="chapter-settings-row">
+              <label for="pause-ms" data-i18n="pauseLabel"></label>
+              <input type="number" id="pause-ms" value="400" min="0">
+              <label for="dialog-text-lang" data-i18n="boxLanguageLabel"></label>
+              <select id="dialog-text-lang">
+                <option value="de">DE</option>
+                <option value="en">EN</option>
+                <option value="fr">FR</option>
+                <option value="es">ES</option>
+              </select>
+            </div>
+            <h4 class="section-divider-title" data-i18n="section-actions"></h4>
+            <div class="action-row">
+              <label class="force-regenerate-row">
+                <input type="checkbox" id="force-regenerate-checkbox">
+                <span data-i18n="forceRegenerateLabel"></span>
+              </label>
+              <button type="button" id="generate-all-btn" class="btn-compact" data-i18n="generateAll" data-i18n-title="generateAllTooltip"></button>
+              <button type="button" id="cancel-all-btn" class="cancel-btn btn-compact" disabled data-i18n="cancel"></button>
+              <button type="button" id="toggle-overview-btn" data-i18n="dialogOverviewBtn" class="btn-compact"></button>
+              <button type="button" id="recombine-btn" data-i18n="recombineBtn" class="btn-compact"></button>
+              <button type="button" id="save-chapter-btn" hidden class="btn-compact"></button>
+              <span id="save-chapter-confirmation" class="save-confirmation" hidden data-i18n="saved"></span>
+              <button type="button" id="toggle-explorer-btn" data-i18n="dialogExplorerBtn" class="btn-compact"></button>
+              <button type="button" id="clear-dialog-btn" data-i18n="clear" class="cancel-btn btn-compact"></button>
+              <button type="button" id="clear-all-chats-btn" class="cancel-btn btn-compact" data-i18n="clearAllChatsBtn"></button>
+              <button type="button" id="cleanup-variants-btn" class="cancel-btn btn-compact" hidden data-i18n="cleanupVariants"></button>
+            </div>
+            <div id="dialog-overview-panel" class="dialog-overview-panel" hidden></div>
+            <span id="dialog-status" class="status status-idle"></span>
+            <h4 class="section-divider-title" data-i18n="section-combined"></h4>
+            <audio id="combined-player" controls preload="metadata"></audio>
+            <canvas id="combined-player-waveform" class="waveform" width="600" height="48"></canvas>
+            <div class="combined-effects-row">
+              <button type="button" id="combined-compressor-btn" class="combined-effects-btn btn-compact" data-i18n="compressorBtn"></button>
+              <button type="button" id="combined-reverb-btn" class="combined-effects-btn btn-compact" data-i18n="reverbBtn"></button>
+              <button type="button" id="combined-delay-btn" class="combined-effects-btn btn-compact" data-i18n="delayBtn"></button>
+              <button type="button" id="combined-eq-btn" class="combined-effects-btn btn-compact" data-i18n="eqBtn"></button>
+              <button type="button" id="combined-trim-btn" class="combined-effects-btn btn-compact" data-i18n="trimBtn"></button>
+              <button type="button" id="combined-normalize-btn" class="combined-effects-btn btn-compact" data-i18n="normalizeBtn"></button>
+              <button type="button" id="combined-pitch-btn" class="combined-effects-btn btn-compact" data-i18n="pitchBtn"></button>
+              <button type="button" id="combined-formant-btn" class="combined-effects-btn btn-compact" data-i18n="formantBtn"></button>
+            </div>
+            <a id="combined-download-link" class="download-btn" download hidden data-i18n="download"></a>
+            <div id="combined-variants-list" class="explorer-combined-variants"></div>
+          </div>
+        </div>
+        <div class="tag-panel" id="dialog-tag-panel" hidden>
+          <label data-i18n="insertTags"></label>
+          <div id="dialog-tag-list" class="tag-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <template id="dialog-box-template">
+      <div class="dialog-box">
+        <div class="dialog-box-header">
+          <span class="dialog-box-speaker"></span>
+          <span class="dialog-box-recorded-name-wrap" hidden>
+            <svg class="dialog-box-recorded-name-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" />
+              <line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+            <input type="text" class="dialog-box-recorded-name-input" data-i18n-placeholder="recordedSpeakerPlaceholder">
+          </span>
+          <button type="button" class="dialog-box-chevron-btn">▾</button>
+        </div>
+        <div class="dialog-box-body">
+          <textarea class="dialog-box-text" rows="3" data-i18n-placeholder="textPlaceholder"></textarea>
+          <select class="dialog-box-voice"></select>
+          <div class="dialog-box-generate-row">
+            <button type="button" class="dialog-box-generate-btn" data-i18n="generate"></button>
+            <input type="number" class="dialog-box-variant-count pause-connector-input" min="1" max="5" value="1" data-i18n-title="variantCountTitle">
+            <div class="dialog-box-menu">
+              <button type="button" class="dialog-box-menu-btn" data-i18n-title="boxMenuBtnTitle">⋮</button>
+              <div class="dialog-box-menu-dropdown" hidden>
+                <button type="button" class="dialog-box-menu-clear-text" data-i18n="clearTextBtn"></button>
+                <button type="button" class="dialog-box-menu-clear-audio" data-i18n="clearAudioBtn"></button>
+              </div>
+            </div>
+            <button type="button" class="remove-box-btn" data-i18n="removeBox" data-i18n-title="removeBoxWarning"></button>
+          </div>
+          <button type="button" class="dialog-box-voice-preview-btn btn-compact" disabled data-i18n="previewVoice"></button>
+          <audio class="dialog-box-voice-preview-player" controls hidden></audio>
+          <div class="dialog-box-volume-row">
+            <input type="range" class="dialog-box-volume" min="-24" max="24" step="1" value="0">
+            <span class="dialog-box-volume-value">0 dB</span>
+            <div class="dialog-box-pan-unit">
+              <div class="dialog-box-pan-knob compressor-knob" tabindex="0" data-i18n-title="panKnobTitle">
+                <div class="compressor-knob-pointer"></div>
+              </div>
+              <span class="dialog-box-pan-value">C</span>
+            </div>
+          </div>
+          <div class="dialog-box-effects-row">
+            <button type="button" class="dialog-box-compressor-btn dialog-box-effect-btn btn-compact" data-i18n="compressorBtn"></button>
+            <button type="button" class="dialog-box-reverb-btn dialog-box-effect-btn btn-compact" data-i18n="reverbBtn"></button>
+            <button type="button" class="dialog-box-delay-btn dialog-box-effect-btn btn-compact" data-i18n="delayBtn"></button>
+            <button type="button" class="dialog-box-eq-btn dialog-box-effect-btn btn-compact" data-i18n="eqBtn"></button>
+            <button type="button" class="dialog-box-trim-btn dialog-box-effect-btn btn-compact" data-i18n="trimBtn"></button>
+            <button type="button" class="dialog-box-normalize-btn dialog-box-effect-btn btn-compact" data-i18n="normalizeBtn"></button>
+            <button type="button" class="dialog-box-pitch-btn dialog-box-effect-btn btn-compact" data-i18n="pitchBtn"></button>
+            <button type="button" class="dialog-box-formant-btn dialog-box-effect-btn btn-compact" data-i18n="formantBtn"></button>
+            <button type="button" class="dialog-box-record-btn btn-compact" data-i18n="recordBtn"></button>
+            <button type="button" class="dialog-box-chat-btn btn-compact" data-i18n="chatBtn"></button>
+          </div>
+          <div class="dialog-box-level-meter">
+            <div class="dialog-box-level-meter-mask"></div>
+          </div>
+          <span class="dialog-box-loudness"></span>
+          <span class="dialog-box-status status status-idle"></span>
+          <audio class="dialog-box-player" controls preload="metadata"></audio>
+          <canvas class="dialog-box-waveform waveform" width="600" height="40"></canvas>
+          <a class="dialog-box-download download-btn" download hidden data-i18n="download"></a>
+          <div class="dialog-box-variants" hidden></div>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+  <script type="module" src="/static/js/theme.js"></script>
+  <script type="module" src="/static/js/app.js"></script>
+  <script type="module" src="/static/js/dialog.js"></script>
+  <script type="module" src="/static/js/engine-loading.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bars2Bars_s2_pro_lab</title>
+  <script>
+    if (localStorage.getItem("fishaudio_skip_landing") === "true") {
+      location.replace("/app");
+    }
+  </script>
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/landing.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="landing-bg"></div>
+  <button type="button" id="language-toggle-btn" class="landing-lang-toggle-btn">EN</button>
+  <div class="landing-content">
+    <h1 class="landing-title">Bars2Bars<br>Fishaudio-S2Pro-Lab</h1>
+    <p class="landing-tagline" data-i18n="landingTagline"></p>
+
+    <div class="landing-waveform" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+    <div class="landing-features">
+      <div class="landing-feature">
+        <h3 data-i18n="landingFeature1Title"></h3>
+        <p data-i18n="landingFeature1Body"></p>
+      </div>
+      <div class="landing-feature">
+        <h3 data-i18n="landingFeature2Title"></h3>
+        <p data-i18n="landingFeature2Body"></p>
+      </div>
+      <div class="landing-feature">
+        <h3 data-i18n="landingFeature3Title"></h3>
+        <p data-i18n="landingFeature3Body"></p>
+      </div>
+      <div class="landing-feature">
+        <h3 data-i18n="landingFeature4Title"></h3>
+        <p data-i18n="landingFeature4Body"></p>
+      </div>
+    </div>
+
+    <div class="landing-limitations">
+      <h3 data-i18n="landingLimitationsTitle"></h3>
+      <ul>
+        <li data-i18n="landingLimitation1"></li>
+        <li data-i18n="landingLimitation2"></li>
+        <li data-i18n="landingLimitation3"></li>
+        <li data-i18n="landingLimitation4"></li>
+        <li data-i18n="landingLimitation5"></li>
+      </ul>
+    </div>
+
+    <a href="/app" class="landing-cta" data-i18n="landingCta"></a>
+
+    <label class="landing-skip-label">
+      <input type="checkbox" id="landing-skip-checkbox">
+      <span data-i18n="landingSkipLabel"></span>
+    </label>
+  </div>
+
+  <script type="module" src="/static/js/theme.js"></script>
+  <script type="module" src="/static/js/i18n.js"></script>
+  <script type="module" src="/static/js/landing.js"></script>
+
+</body>
+</html>
