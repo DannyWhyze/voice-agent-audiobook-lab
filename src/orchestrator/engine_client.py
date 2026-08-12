@@ -42,8 +42,13 @@ def list_voices() -> list[str]:
 def _find_voice_dir(name: str) -> Path | None:
     if not VOICES_DIR.exists():
         return None
-    for txt_path in VOICES_DIR.rglob(f"{name}.txt"):
-        return txt_path.parent
+    # Only ever glob with a fixed, safe pattern ("*.txt") and match the
+    # untrusted `name` by exact dict lookup afterward -- never embed `name`
+    # itself in the glob pattern, or "../"/"*" in it can walk rglob outside
+    # VOICES_DIR (see docs_dw/reviewer-qa-security.md).
+    for txt_path in VOICES_DIR.rglob("*.txt"):
+        if txt_path.stem == name:
+            return txt_path.parent
     return None
 
 

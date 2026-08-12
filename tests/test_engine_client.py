@@ -69,6 +69,48 @@ def test_list_voices_includes_txt_without_matching_wav(tmp_path, monkeypatch):
         engine_client.get_voice_preview("Orphan")
 
 
+def test_find_voice_dir_rejects_glob_and_traversal_payloads(tmp_path, monkeypatch):
+    # _find_voice_dir() must never feed the untrusted `name` into rglob()'s
+    # pattern -- only match it by exact comparison against real filenames
+    # afterward. Otherwise "*" or "../" in `name` can walk rglob outside
+    # VOICES_DIR (regression test for the fix described in
+    # docs_dw/reviewer-qa-security.md).
+    root = tmp_path / "project"
+    voices_dir = root / "data" / "audio_data" / "voices"
+    voices_dir.mkdir(parents=True)
+    (voices_dir / "Anna.txt").write_text("Text", encoding="utf-8")
+    (voices_dir / "Anna.wav").write_bytes(_make_wav_bytes())
+
+    secret_dir = root / "secrets"
+    secret_dir.mkdir()
+    (secret_dir / "outside.txt").write_text("do not leak", encoding="utf-8")
+
+    monkeypatch.setattr(engine_client, "VOICES_DIR", voices_dir)
+
+    assert engine_client._find_voice_dir("*") is None
+    assert engine_client._find_voice_dir("../../secrets/outside") is None
+    # A real voice must still resolve normally.
+    assert engine_client._find_voice_dir("Anna") == voices_dir
+
+
+def test_get_voice_preview_rejects_traversal_payload(tmp_path, monkeypatch):
+    root = tmp_path / "project"
+    voices_dir = root / "data" / "audio_data" / "voices"
+    voices_dir.mkdir(parents=True)
+
+    secret_dir = root / "secrets"
+    secret_dir.mkdir()
+    (secret_dir / "outside.txt").write_text("do not leak", encoding="utf-8")
+    (secret_dir / "outside.wav").write_bytes(b"SECRET_WAV_BYTES")
+
+    monkeypatch.setattr(engine_client, "VOICES_DIR", voices_dir)
+
+    with pytest.raises(EngineError) as exc_info:
+        engine_client.get_voice_preview("../../secrets/outside")
+
+    assert exc_info.value.status_code == 400
+
+
 def test_get_voice_preview_success(tmp_path, monkeypatch):
     voices_dir = tmp_path / "voices"
     voices_dir.mkdir()
