@@ -201,6 +201,8 @@ multi-user, this needs re-evaluating — see
 
 ## License note
 
+This repository's own code (orchestrator, effects, UI) is MIT-licensed — see [LICENSE](LICENSE).
+
 `s2-pro`'s weights are licensed under the Fish Audio Research License (non-commercial use free of charge; commercial use requires a separate license — contact business@fish.audio). Check the license on the model's HuggingFace page before using it beyond this lab.
 
 ## Acknowledgments
