@@ -6,6 +6,7 @@ sample_*.wav
 !german/*.wav
 !english/*.wav
 *.json
+*.hidden
 __pycache__/
 *.pyc
 .venv/
