@@ -40,7 +40,18 @@ export function buildKnobGrid({ container, defs, params, onChange }) {
 
     const valueSpan = document.createElement("span");
     valueSpan.className = "compressor-stepper-value";
+    valueSpan.tabIndex = 0;
+    valueSpan.title = "Click to enter a value";
     unit.appendChild(valueSpan);
+
+    const valueInput = document.createElement("input");
+    valueInput.type = "number";
+    valueInput.className = "compressor-stepper-input";
+    valueInput.min = def.min;
+    valueInput.max = def.max;
+    valueInput.step = def.step;
+    valueInput.hidden = true;
+    unit.appendChild(valueInput);
 
     function angleForValue(displayValue) {
       const fraction = (displayValue - def.min) / (def.max - def.min);
@@ -104,6 +115,45 @@ export function buildKnobGrid({ container, defs, params, onChange }) {
         event.preventDefault();
         setValue(currentDisplayValue - def.step);
       }
+    });
+
+    function openValueInput() {
+      valueInput.value = fromParam(params[def.key]);
+      valueSpan.hidden = true;
+      valueInput.hidden = false;
+      valueInput.focus();
+      valueInput.select();
+    }
+
+    function closeValueInput() {
+      valueInput.hidden = true;
+      valueSpan.hidden = false;
+    }
+
+    valueSpan.addEventListener("click", openValueInput);
+    valueSpan.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        openValueInput();
+      }
+    });
+
+    valueInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        valueInput.blur();
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeValueInput();
+      }
+    });
+
+    valueInput.addEventListener("blur", () => {
+      const parsed = Number.parseFloat(valueInput.value);
+      if (Number.isFinite(parsed)) {
+        setValue(parsed);
+      }
+      closeValueInput();
     });
 
     container.appendChild(unit);
