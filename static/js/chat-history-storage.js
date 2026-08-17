@@ -52,6 +52,18 @@ export function removeChatHistoriesEntry(project, chapter, boxIndex) {
   localStorage.setItem(storageKey(project, chapter), JSON.stringify(histories));
 }
 
+// Moves the box-chat histories from oldChapter's key to newChapter's key,
+// so renaming a chapter doesn't silently orphan its chat history under the
+// old, now-unreferenced key while the renamed chapter starts empty. A no-op
+// if oldChapter never had any history saved, so it can't wipe out an
+// existing newChapter entry (the overwrite-rename case) with an empty one.
+export function renameChatHistoriesEntry(project, oldChapter, newChapter) {
+  const raw = localStorage.getItem(storageKey(project, oldChapter));
+  if (raw === null) return;
+  localStorage.removeItem(storageKey(project, oldChapter));
+  localStorage.setItem(storageKey(project, newChapter), raw);
+}
+
 function scriptChatStorageKey(project, chapter) {
   return `fishaudio_script_chat_history:${project}:${chapter}`;
 }
@@ -73,6 +85,15 @@ export function saveScriptChatHistory(project, chapter, history) {
 
 export function clearScriptChatHistory(project, chapter) {
   localStorage.removeItem(scriptChatStorageKey(project, chapter));
+}
+
+// Same move-not-overwrite behavior as renameChatHistoriesEntry, for the
+// script-chat key.
+export function renameScriptChatHistory(project, oldChapter, newChapter) {
+  const raw = localStorage.getItem(scriptChatStorageKey(project, oldChapter));
+  if (raw === null) return;
+  localStorage.removeItem(scriptChatStorageKey(project, oldChapter));
+  localStorage.setItem(scriptChatStorageKey(project, newChapter), raw);
 }
 
 function projectChatStorageKey(project) {

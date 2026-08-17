@@ -32,6 +32,8 @@ import {
   loadChatHistories,
   loadProjectChatHistory,
   loadScriptChatHistory,
+  renameChatHistoriesEntry,
+  renameScriptChatHistory,
 } from "./chat-history-storage.js";
 import { restoreChatHistories } from "./overlays/chat-overlay.js";
 import { closeAllOverlays } from "./overlays/overlay-chrome.js";
@@ -284,6 +286,9 @@ async function confirmChapterRename(oldName, rawNewName, chapters, cancel) {
       body: JSON.stringify({ new_name: newName }),
     },
   );
+
+  renameChatHistoriesEntry(currentProject, oldName, newName);
+  renameScriptChatHistory(currentProject, oldName, newName);
 
   if (currentChapter === oldName) {
     currentChapter = newName;

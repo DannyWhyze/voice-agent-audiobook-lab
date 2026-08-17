@@ -7,8 +7,10 @@ import {
   loadChatHistories,
   saveChatHistoriesEntry,
   removeChatHistoriesEntry,
+  renameChatHistoriesEntry,
   loadScriptChatHistory,
   saveScriptChatHistory,
+  renameScriptChatHistory,
   clearAllChatHistoriesForProject,
 } from "../../static/js/chat-history-storage.js";
 
@@ -90,6 +92,40 @@ test("removeChatHistoriesEntry ignoriert einen Index außerhalb des Arrays", () 
   saveChatHistoriesEntry("P2", "K1", 0, [{ role: "user", content: "Box 0" }]);
   removeChatHistoriesEntry("P2", "K1", 5);
   assert.deepEqual(loadChatHistories("P2", "K1"), [[{ role: "user", content: "Box 0" }]]);
+});
+
+test("renameChatHistoriesEntry verschiebt die Box-Chats vom alten auf den neuen Kapitelnamen", () => {
+  saveChatHistoriesEntry("R", "Alt", 0, [{ role: "user", content: "Box 0" }]);
+
+  renameChatHistoriesEntry("R", "Alt", "Neu");
+
+  assert.deepEqual(loadChatHistories("R", "Neu"), [[{ role: "user", content: "Box 0" }]]);
+  assert.deepEqual(loadChatHistories("R", "Alt"), []);
+});
+
+test("renameChatHistoriesEntry ist ein No-op, wenn das alte Kapitel keine Historie hatte, und überschreibt eine vorhandene Ziel-Historie nicht", () => {
+  saveChatHistoriesEntry("R2", "Ziel", 0, [{ role: "user", content: "bleibt" }]);
+
+  renameChatHistoriesEntry("R2", "LeeresAlt", "Ziel");
+
+  assert.deepEqual(loadChatHistories("R2", "Ziel"), [[{ role: "user", content: "bleibt" }]]);
+});
+
+test("renameScriptChatHistory verschiebt den Skript-Chat vom alten auf den neuen Kapitelnamen", () => {
+  saveScriptChatHistory("R3", "Alt", [{ role: "user", content: "Skript-Text" }]);
+
+  renameScriptChatHistory("R3", "Alt", "Neu");
+
+  assert.deepEqual(loadScriptChatHistory("R3", "Neu"), [{ role: "user", content: "Skript-Text" }]);
+  assert.deepEqual(loadScriptChatHistory("R3", "Alt"), []);
+});
+
+test("renameScriptChatHistory ist ein No-op, wenn das alte Kapitel keinen Skript-Chat hatte, und überschreibt einen vorhandenen Ziel-Skript-Chat nicht", () => {
+  saveScriptChatHistory("R4", "Ziel", [{ role: "user", content: "bleibt" }]);
+
+  renameScriptChatHistory("R4", "LeeresAlt", "Ziel");
+
+  assert.deepEqual(loadScriptChatHistory("R4", "Ziel"), [{ role: "user", content: "bleibt" }]);
 });
 
 test("clearAllChatHistoriesForProject räumt Box-Chats, Skript-Chats und Projekt-Chat für alle Kapitel dieses Projekts auf, lässt andere Projekte in Ruhe", () => {
