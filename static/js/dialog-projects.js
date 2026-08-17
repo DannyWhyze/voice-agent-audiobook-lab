@@ -11,7 +11,6 @@ import {
   renderPauseConnectors,
   setLoadedBoxBlob,
   setLoadedBoxVariants,
-  textLangSelect,
   updateLoudnessLabel,
 } from "./dialog-boxes.js";
 import {
@@ -420,7 +419,6 @@ async function selectChapter(name) {
   resetCombinedOutput();
   pauseMsInput.value = data.pause_ms || 400;
   endPauseMsInput.value = data.end_pause_ms || 0;
-  textLangSelect.value = data.text_language || "de";
 
   // Must run before addDialogBox() below: renderVariantsList() (called from
   // within addDialogBox() for boxes with saved variants) needs an active
@@ -498,7 +496,6 @@ export async function saveCurrentChapter({ silent = false } = {}) {
   formData.append("boxes", JSON.stringify(draft.boxes));
   formData.append("pause_ms", String(Number(draft.pauseMs) || 400));
   formData.append("end_pause_ms", String(Number(draft.endPauseMs) || 0));
-  formData.append("text_language", textLangSelect.value);
 
   const clipIndices = [];
   boxes.forEach((box, index) => {

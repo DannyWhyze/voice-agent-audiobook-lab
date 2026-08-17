@@ -23,7 +23,6 @@ import {
   pauseMsInput,
   refreshAllVoiceSelects,
   renderPauseConnectors,
-  textLangSelect,
 } from "./dialog-boxes.js";
 import { resetCombinedOutput } from "./dialog-combined.js";
 import { clearChatHistoriesEntry, loadChatHistories, loadScriptChatHistory, saveProjectChatHistory } from "./chat-history-storage.js";
@@ -70,7 +69,6 @@ export function collectDialogDraft() {
     boxes: collectBoxesDraftData(),
     pauseMs: pauseMsInput.value,
     endPauseMs: endPauseMsInput.value,
-    textLanguage: textLangSelect.value,
   };
 }
 
@@ -216,9 +214,6 @@ async function initDialogTab() {
       }
       if (draft.endPauseMs) {
         endPauseMsInput.value = draft.endPauseMs;
-      }
-      if (draft.textLanguage) {
-        textLangSelect.value = draft.textLanguage;
       }
       for (const savedBox of draft.boxes) {
         addDialogBox(savedBox);

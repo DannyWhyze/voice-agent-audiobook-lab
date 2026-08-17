@@ -144,7 +144,6 @@ async def save_project_chapter(
     clip_indices: str = Form("[]"),
     combined_clip: UploadFile | None = File(None),
     end_pause_ms: int = Form(0),
-    text_language: str = Form("de"),
 ) -> dict:
     parsed_boxes = _parse_json_field("boxes", boxes)
     parsed_indices = _parse_json_field("clip_indices", clip_indices)
@@ -171,7 +170,6 @@ async def save_project_chapter(
             audio_clips,
             combined_audio,
             end_pause_ms,
-            text_language,
         )
     except EngineError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc

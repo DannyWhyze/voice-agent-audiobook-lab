@@ -182,7 +182,6 @@ def save_chapter(
     audio_clips: dict[int, bytes],
     combined_audio: bytes | None = None,
     end_pause_ms: int = 0,
-    text_language: str = "de",
 ) -> None:
     project_dir = _project_dir(project)
     project_dir.mkdir(parents=True, exist_ok=True)
@@ -193,7 +192,6 @@ def save_chapter(
         "boxes": boxes,
         "pause_ms": pause_ms,
         "end_pause_ms": end_pause_ms,
-        "text_language": text_language,
         "updated_at": datetime.now(UTC).isoformat(),
     }
     path.write_text(json.dumps(content, ensure_ascii=False, indent=2), encoding="utf-8")

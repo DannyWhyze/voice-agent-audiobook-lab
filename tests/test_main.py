@@ -391,34 +391,6 @@ def test_save_chapter_defaults_end_pause_ms_to_zero(project_dir, client):
     assert get_response.json()["end_pause_ms"] == 0
 
 
-def test_save_chapter_persists_text_language(project_dir, client):
-    response = client.put(
-        "/projects/TestProject/chapters/Chapter1",
-        data={
-            "boxes": "[]",
-            "pause_ms": "400",
-            "end_pause_ms": "0",
-            "text_language": "en",
-            "clip_indices": "[]",
-        },
-    )
-    assert response.status_code == 200
-
-    get_response = client.get("/projects/TestProject/chapters/Chapter1")
-    assert get_response.json()["text_language"] == "en"
-
-
-def test_save_chapter_defaults_text_language_to_de(project_dir, client):
-    response = client.put(
-        "/projects/TestProject/chapters/Chapter1",
-        data={"boxes": "[]", "pause_ms": "400", "clip_indices": "[]"},
-    )
-    assert response.status_code == 200
-
-    get_response = client.get("/projects/TestProject/chapters/Chapter1")
-    assert get_response.json()["text_language"] == "de"
-
-
 def test_save_chapter_rejects_non_integer_clip_index(project_dir, client):
     response = client.put(
         "/projects/TestProject/chapters/Chapter1",

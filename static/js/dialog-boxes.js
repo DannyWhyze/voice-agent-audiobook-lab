@@ -50,14 +50,6 @@ endPauseMsInput.addEventListener("input", () => {
   saveDialogDraft();
 });
 
-export const textLangSelect = document.getElementById("dialog-text-lang");
-textLangSelect.addEventListener("change", () => {
-  for (const box of dialogBoxesContainer.querySelectorAll(".dialog-box")) {
-    box.querySelector(".dialog-box-text").lang = textLangSelect.value;
-  }
-  saveDialogDraft();
-});
-
 const boxAudioBlobs = new WeakMap();
 const boxRawLoudnessDb = new WeakMap();
 const boxGainNodes = new WeakMap();
@@ -308,22 +300,32 @@ export function appendBoxVariants(box, newItems) {
   return { hadActive, firstNewIndex, variantCount: data.variants.length };
 }
 
-export async function activateVariant(box, index) {
+// context, if given, overrides the live project/chapter/box-index lookup —
+// used by dialog-queue.js's background generation path, where the box may
+// already be detached from a different chapter by the time this runs (see
+// its comment, and docs/FIXES.md). Every other call site (variant button
+// clicks, delete fallback) omits it and keeps the original live-lookup
+// behavior.
+export async function activateVariant(box, index, context = null) {
   const data = boxAudioBlobs.get(box);
   if (!data || !data.variants[index]) return;
   data.activeIndex = index;
   const item = data.variants[index];
 
-  if (item.filename && getCurrentProject() && getCurrentChapterName()) {
-    const boxes = Array.from(document.querySelectorAll(".dialog-box"));
-    const boxIndex = boxes.indexOf(box);
+  const project = context?.project ?? getCurrentProject();
+  const chapter = context?.chapter ?? getCurrentChapterName();
+
+  if (item.filename && project && chapter) {
+    const boxIndex = box.isConnected
+      ? Array.from(document.querySelectorAll(".dialog-box")).indexOf(box)
+      : context?.boxIndex;
     await fetch(
-      `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/boxes/${boxIndex}/variants/${encodeURIComponent(item.filename)}/activate`,
+      `/projects/${encodeURIComponent(project)}/chapters/${encodeURIComponent(chapter)}/boxes/${boxIndex}/variants/${encodeURIComponent(item.filename)}/activate`,
       { method: "PUT" }
     );
 
     const audioResponse = await fetch(
-      `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/audio/${boxIndex}?t=${Date.now()}`
+      `/projects/${encodeURIComponent(project)}/chapters/${encodeURIComponent(chapter)}/audio/${boxIndex}?t=${Date.now()}`
     );
     if (audioResponse.ok) {
       item.blob = await audioResponse.blob();
@@ -966,7 +968,6 @@ export function addDialogBox(initial = {}, insertBeforeBox = null) {
     renderVariantsList(box);
   });
 
-  textarea.lang = textLangSelect.value;
   box.dataset.collapsed = initial.collapsed ? "true" : "false";
 
   if (initial.volumeDb !== undefined) {

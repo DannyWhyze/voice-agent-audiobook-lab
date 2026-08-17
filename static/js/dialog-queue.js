@@ -61,8 +61,19 @@ export function enqueueGeneration(box, count = 1, forceActivateNewest = false) {
     return Promise.resolve(false);
   }
 
+  // Captured now, not re-read once generation finishes: the engine can't
+  // actually be cancelled server-side (it keeps rendering the request it
+  // already received regardless of what the client does, see docs/FIXES.md),
+  // so a generation keeps running even after the user switches to a
+  // different chapter. Re-reading the current project/chapter/box position
+  // at that point would land the result in whichever chapter happens to be
+  // open when it finishes, not the one it was started for.
+  const project = getCurrentProject();
+  const chapter = getCurrentChapterName();
+  const boxIndex = Array.from(dialogBoxesContainer.querySelectorAll(".dialog-box")).indexOf(box);
+
   const promise = new Promise((resolve) => {
-    generationQueue.push({ box, count, forceActivateNewest, resolve });
+    generationQueue.push({ box, count, forceActivateNewest, resolve, project, chapter, boxIndex });
   });
   pendingGenerations.set(box, promise);
   setBoxGenerationControlsDisabled(box, true);
@@ -78,12 +89,13 @@ async function processQueue() {
   if (queueProcessing) return;
   queueProcessing = true;
   while (generationQueue.length > 0) {
-    const { box, count, forceActivateNewest, resolve } = generationQueue.shift();
+    const { box, count, forceActivateNewest, resolve, project, chapter, boxIndex } =
+      generationQueue.shift();
     const controller = new AbortController();
     activeDialogController = controller;
     let success = true;
     try {
-      await runBoxGeneration(box, count, controller.signal, forceActivateNewest);
+      await runBoxGeneration(box, count, controller.signal, forceActivateNewest, project, chapter, boxIndex);
     } catch {
       success = false;
     }
@@ -96,7 +108,7 @@ async function processQueue() {
   cancelAllBtn.disabled = true;
 }
 
-async function runBoxGeneration(box, count, signal, forceActivateNewest) {
+async function runBoxGeneration(box, count, signal, forceActivateNewest, project, chapter, boxIndex) {
   const statusEl = box.querySelector(".dialog-box-status");
   const newItems = [];
 
@@ -107,16 +119,25 @@ async function runBoxGeneration(box, count, signal, forceActivateNewest) {
     let blob;
     let filename = "";
     try {
-      if (getCurrentProject() && getCurrentChapterName()) {
-        const boxes = Array.from(document.querySelectorAll(".dialog-box"));
-        const boxIndex = boxes.indexOf(box);
+      if (project && chapter) {
+        // Re-derive the live position only while the box is still on screen
+        // (box.isConnected) -- keeps following another box being
+        // removed/reordered in the same chapter mid-generation, exactly like
+        // before this fix. Once the user has navigated to a different
+        // chapter the box is detached and its position can never be looked
+        // up again, so fall back to the index captured at enqueue time
+        // instead of the wrong (or -1) result an indexOf against the new
+        // chapter's boxes would give. See docs/FIXES.md.
+        const currentBoxIndex = box.isConnected
+          ? Array.from(document.querySelectorAll(".dialog-box")).indexOf(box)
+          : boxIndex;
         const textarea = box.querySelector(".dialog-box-text");
         const voiceSelect = box.querySelector(".dialog-box-voice");
         const text = textarea.value;
         const voice = voiceSelect.value || null;
 
         const response = await fetch(
-          `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/boxes/${boxIndex}/variants`,
+          `/projects/${encodeURIComponent(project)}/chapters/${encodeURIComponent(chapter)}/boxes/${currentBoxIndex}/variants`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -146,10 +167,11 @@ async function runBoxGeneration(box, count, signal, forceActivateNewest) {
   statusEl.textContent = t("done");
   statusEl.className = "dialog-box-status status status-ok";
 
+  const context = project && chapter ? { project, chapter, boxIndex } : null;
   if (!hadActive) {
-    await activateVariant(box, firstNewIndex);
+    await activateVariant(box, firstNewIndex, context);
   } else if (forceActivateNewest) {
-    await activateVariant(box, variantCount - 1);
+    await activateVariant(box, variantCount - 1, context);
   } else {
     renderVariantsList(box);
     saveDialogDraft();
