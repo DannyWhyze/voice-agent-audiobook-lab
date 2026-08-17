@@ -243,7 +243,13 @@
         </div>
         <div class="dialog-box-body">
           <textarea class="dialog-box-text" rows="3" data-i18n-placeholder="textPlaceholder"></textarea>
-          <select class="dialog-box-voice"></select>
+          <div class="dialog-box-voice-row">
+            <select class="dialog-box-voice"></select>
+            <label class="dialog-box-voice-replace-all">
+              <input type="checkbox" class="dialog-box-voice-replace-all-checkbox">
+              <span data-i18n="voiceReplaceAllCheckbox"></span>
+            </label>
+          </div>
           <div class="dialog-box-generate-row">
             <button type="button" class="dialog-box-generate-btn" data-i18n="generate"></button>
             <input type="number" class="dialog-box-variant-count pause-connector-input" min="1" max="5" value="1" data-i18n-title="variantCountTitle">

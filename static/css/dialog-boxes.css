@@ -269,6 +269,21 @@
     gap: 8px;
 }
 
+.dialog-box-voice-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dialog-box-voice-replace-all {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+
 .dialog-box-generate-row .remove-box-btn {
     margin-left: auto;
 }

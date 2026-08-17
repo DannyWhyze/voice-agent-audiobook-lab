@@ -19,11 +19,17 @@ from ..dialog.projects import (
     load_chapter,
     rename_chapter,
     rename_project,
+    replace_voice_in_chapter,
     save_chapter,
     save_chapter_order,
 )
 from ..engine_client import EngineError
-from ..schemas import RenameChapterRequest, RenameProjectRequest, ReorderChaptersRequest
+from ..schemas import (
+    RenameChapterRequest,
+    RenameProjectRequest,
+    RenameVoiceRequest,
+    ReorderChaptersRequest,
+)
 
 router = APIRouter()
 
@@ -183,6 +189,18 @@ def clear_project_chapter_audio(project: str, chapter: str) -> dict:
     except EngineError as exc:
         raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
     return {"status": "ok"}
+
+
+@router.put("/projects/{project}/chapters/{chapter}/voices/{name}/replace")
+def replace_project_chapter_voice(
+    project: str, chapter: str, name: str, request: RenameVoiceRequest
+) -> dict:
+    try:
+        count = replace_voice_in_chapter(project, chapter, name, request.new_name)
+    except EngineError as exc:
+        raise HTTPException(status_code=exc.status_code, detail=exc.detail) from exc
+    return {"replaced": count}
+
 
 
 @router.delete("/projects/{project}/chapters/{chapter}")

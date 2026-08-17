@@ -557,6 +557,118 @@ def test_rename_voice_everywhere_skips_unaffected_chapters(project_dir):
     assert before_mtime == after_mtime
 
 
+def test_replace_voice_in_chapter_updates_matching_boxes_in_target_chapter(
+    project_dir, monkeypatch
+):
+    monkeypatch.setattr(dialog_projects, "list_voices", lambda: ["Anna", "Berta", "Cora"])
+    (project_dir / "TestProject" / "Chapter1.json").write_text(
+        json.dumps(
+            {"boxes": [{"voice": "Anna"}, {"voice": "Berta"}, {"voice": "Anna"}]}
+        ),
+        encoding="utf-8",
+    )
+
+    count = dialog_projects.replace_voice_in_chapter(
+        "TestProject", "Chapter1", "Anna", "Cora"
+    )
+    assert count == 2
+
+    data = json.loads(
+        (project_dir / "TestProject" / "Chapter1.json").read_text(encoding="utf-8")
+    )
+    assert data["boxes"][0]["voice"] == "Cora"
+    assert data["boxes"][1]["voice"] == "Berta"
+    assert data["boxes"][2]["voice"] == "Cora"
+
+
+def test_replace_voice_in_chapter_leaves_other_chapters_and_projects_untouched(
+    project_dir, monkeypatch
+):
+    monkeypatch.setattr(dialog_projects, "list_voices", lambda: ["Anna", "Cora"])
+    (project_dir / "TestProject" / "Chapter1.json").write_text(
+        json.dumps({"boxes": [{"voice": "Anna"}]}), encoding="utf-8"
+    )
+    (project_dir / "TestProject" / "Chapter2.json").write_text(
+        json.dumps({"boxes": [{"voice": "Anna"}]}), encoding="utf-8"
+    )
+    (project_dir / "OtherProject") .mkdir(parents=True, exist_ok=True)
+    (project_dir / "OtherProject" / "Chapter1.json").write_text(
+        json.dumps({"boxes": [{"voice": "Anna"}]}), encoding="utf-8"
+    )
+
+    dialog_projects.replace_voice_in_chapter("TestProject", "Chapter1", "Anna", "Cora")
+
+    assert (
+        json.loads(
+            (project_dir / "TestProject" / "Chapter1.json").read_text(encoding="utf-8")
+        )["boxes"][0]["voice"]
+        == "Cora"
+    )
+    assert (
+        json.loads(
+            (project_dir / "TestProject" / "Chapter2.json").read_text(encoding="utf-8")
+        )["boxes"][0]["voice"]
+        == "Anna"
+    )
+    assert (
+        json.loads(
+            (project_dir / "OtherProject" / "Chapter1.json").read_text(encoding="utf-8")
+        )["boxes"][0]["voice"]
+        == "Anna"
+    )
+
+
+def test_replace_voice_in_chapter_raises_404_for_missing_chapter():
+    with pytest.raises(EngineError) as exc_info:
+        dialog_projects.replace_voice_in_chapter(
+            "NoSuchProject", "NoSuchChapter", "Anna", "Cora"
+        )
+    assert exc_info.value.status_code == 404
+
+
+def test_replace_voice_in_chapter_raises_400_for_unknown_new_voice(
+    project_dir, monkeypatch
+):
+    monkeypatch.setattr(dialog_projects, "list_voices", lambda: ["Anna"])
+    (project_dir / "TestProject" / "Chapter1.json").write_text(
+        json.dumps({"boxes": [{"voice": "Anna"}]}), encoding="utf-8"
+    )
+    with pytest.raises(EngineError) as exc_info:
+        dialog_projects.replace_voice_in_chapter(
+            "TestProject", "Chapter1", "Anna", "UnknownVoice"
+        )
+    assert exc_info.value.status_code == 400
+
+
+def test_replace_voice_in_chapter_allows_empty_new_voice(project_dir, monkeypatch):
+    monkeypatch.setattr(dialog_projects, "list_voices", lambda: ["Anna"])
+    (project_dir / "TestProject" / "Chapter1.json").write_text(
+        json.dumps({"boxes": [{"voice": "Anna"}]}), encoding="utf-8"
+    )
+    count = dialog_projects.replace_voice_in_chapter(
+        "TestProject", "Chapter1", "Anna", ""
+    )
+    assert count == 1
+    data = json.loads(
+        (project_dir / "TestProject" / "Chapter1.json").read_text(encoding="utf-8")
+    )
+    assert data["boxes"][0]["voice"] == ""
+
+
+def test_replace_voice_in_chapter_returns_zero_when_no_matches(project_dir, monkeypatch):
+    monkeypatch.setattr(dialog_projects, "list_voices", lambda: ["Cora"])
+    chapter_path = project_dir / "TestProject" / "Chapter1.json"
+    before_mtime = chapter_path.stat().st_mtime_ns
+
+    count = dialog_projects.replace_voice_in_chapter(
+        "TestProject", "Chapter1", "NoSuchVoice", "Cora"
+    )
+    assert count == 0
+    after_mtime = chapter_path.stat().st_mtime_ns
+    assert before_mtime == after_mtime
+
+
+
 def test_ensure_agents_md_writes_default_when_missing(tmp_path):
     dialog_projects.ensure_agents_md(tmp_path)
     content = (tmp_path / "AGENTS.md").read_text(encoding="utf-8")

@@ -215,6 +215,7 @@ export async function refreshAllVoiceSelects(rename) {
     select.innerHTML = "";
     populateVoiceSelect(select);
     select.value = previousValue;
+    select.dataset.previousVoice = previousValue;
   }
 }
 
@@ -908,6 +909,7 @@ export function addDialogBox(initial = {}, insertBeforeBox = null) {
   const box = fragment.querySelector(".dialog-box");
   const textarea = box.querySelector(".dialog-box-text");
   const voiceSelect = box.querySelector(".dialog-box-voice");
+  const replaceAllCheckbox = box.querySelector(".dialog-box-voice-replace-all-checkbox");
   const previewBtn = box.querySelector(".dialog-box-voice-preview-btn");
   const previewPlayer = box.querySelector(".dialog-box-voice-preview-player");
   const removeBtn = box.querySelector(".remove-box-btn");
@@ -951,6 +953,7 @@ export function addDialogBox(initial = {}, insertBeforeBox = null) {
   applyVoiceAccent(box, voiceSelect.value);
   updateSpeakerLabel(box, voiceSelect.value);
   previewBtn.disabled = !voiceSelect.value;
+  voiceSelect.dataset.previousVoice = voiceSelect.value;
 
   const recordedNameInput = box.querySelector(".dialog-box-recorded-name-input");
   recordedNameInput.addEventListener("click", (event) => event.stopPropagation());
@@ -1067,12 +1070,57 @@ export function addDialogBox(initial = {}, insertBeforeBox = null) {
     refreshScriptFromBoxes();
   });
   textarea.addEventListener("change", refreshScriptFromBoxes);
+  async function replaceVoiceEverywhere(oldVoice, newVoice) {
+    const otherSelects = Array.from(
+      dialogBoxesContainer.querySelectorAll(".dialog-box-voice"),
+    ).filter((select) => select !== voiceSelect && select.value === oldVoice);
+    if (otherSelects.length === 0) return;
+    if (!confirm(t("confirmReplaceVoiceEverywhere", oldVoice, newVoice, otherSelects.length))) {
+      return;
+    }
+    try {
+      const response = await fetch(
+        `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/voices/${encodeURIComponent(oldVoice)}/replace`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ new_name: newVoice }),
+        },
+      );
+      if (!response.ok) {
+        alert(t("replaceVoiceEverywhereError"));
+        return;
+      }
+    } catch {
+      alert(t("replaceVoiceEverywhereError"));
+      return;
+    }
+    otherSelects.forEach((select) => {
+      select.value = newVoice;
+      select.dataset.previousVoice = newVoice;
+      const otherBox = select.closest(".dialog-box");
+      applyVoiceAccent(otherBox, newVoice);
+      updateBoxSpeakerHeader(otherBox);
+      const otherPreviewBtn = otherBox.querySelector(".dialog-box-voice-preview-btn");
+      if (otherPreviewBtn) otherPreviewBtn.disabled = !newVoice;
+    });
+    saveDialogDraft();
+    refreshScriptFromBoxes();
+  }
+
   voiceSelect.addEventListener("change", () => {
+    const oldVoice = voiceSelect.dataset.previousVoice || "";
+    const newVoice = voiceSelect.value;
     applyVoiceAccent(box, voiceSelect.value);
     updateBoxSpeakerHeader(box);
     saveDialogDraft();
     previewBtn.disabled = !voiceSelect.value;
     refreshScriptFromBoxes();
+    if (replaceAllCheckbox.checked && oldVoice !== "" && newVoice !== oldVoice) {
+      replaceVoiceEverywhere(oldVoice, newVoice);
+    }
+    replaceAllCheckbox.checked = false;
+    voiceSelect.dataset.previousVoice = newVoice;
   });
 
   header.addEventListener("click", () => {

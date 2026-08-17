@@ -150,6 +150,7 @@ button:disabled {
     font-size: 0.85rem;
     background: #28a745;
     color: #fff;
+    order: 1;
 }
 
 .save-confirmation[hidden] {

@@ -12,7 +12,7 @@ This document is a technical reference for the FastAPI backend's internal archit
 
 - **`main.py`** — app setup (CORS, static file mounting, router registration), plus the `/`, `/app`, and `/combine` routes that didn't fit any router's theme.
 - **`routers/`** — one file per route group, all included into `main.py`'s `app`:
-  - `voices.py` — voice listing/preview, creation (`POST /voices`), locking (`PUT /voices/{name}/lock`), renaming (`PUT /voices/{name}/rename`), deletion (`DELETE /voices/{name}`), detail listing (`GET /voices/detail`), and usage lookup (`GET /voices/{name}/usage`).
+  - `voices.py` — voice listing/preview, creation (`POST /voices`), locking (`PUT /voices/{name}/lock`), renaming (`PUT /voices/{name}/rename`), deletion (`DELETE /voices/{name}`), detail listing (`GET /voices/detail`), usage lookup (`GET /voices/{name}/usage`), and chapter-scoped voice replace (`PUT /projects/{project}/chapters/{chapter}/voices/{name}/replace`).
   - `projects.py` — dialog project/chapter CRUD (save, load, delete, rename, reorder chapters).
   - `variants.py` — per-box and combined-audio variant management (generate, compare, activate, delete, lock).
   - `effects.py` — the DSP effect endpoints (compressor, reverb, EQ, normalize, pitch, formant, trim, fade), table-driven registration (`EffectSpec`, see Plan 085).

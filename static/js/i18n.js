@@ -68,6 +68,10 @@ export const TRANSLATIONS = {
     removeBox: "⚠ Box entfernen",
     removeBoxWarning: "Entfernt diese Box endgültig, inkl. Audio und Chat-Verlauf — nicht rückgängig machbar.",
     noVoice: "keine (Basisstimme)",
+    voiceReplaceAllCheckbox: "auch bei allen mit dieser Stimme",
+    confirmReplaceVoiceEverywhere: (oldVoice, newVoice, count) =>
+      `"${oldVoice}" in ${count} weiteren Box(en) durch "${newVoice}" ersetzen?`,
+    replaceVoiceEverywhereError: "Ersetzen fehlgeschlagen. Bitte erneut versuchen.",
     statusGenerating: (suffix) => `Erzeuge... (0s${suffix})`,
     statusGeneratingTick: (n, suffix) => `Erzeuge... (${n}s${suffix})`,
     errorStatusCode: (code) => `Fehler ${code}`,
@@ -345,6 +349,10 @@ export const TRANSLATIONS = {
     removeBox: "⚠ Remove box",
     removeBoxWarning: "Permanently removes this box, including its audio and chat history — cannot be undone.",
     noVoice: "none (base voice)",
+    voiceReplaceAllCheckbox: "also for all with this voice",
+    confirmReplaceVoiceEverywhere: (oldVoice, newVoice, count) =>
+      `Replace "${oldVoice}" with "${newVoice}" in ${count} more box(es)?`,
+    replaceVoiceEverywhereError: "Replace failed. Please try again.",
     statusGenerating: (suffix) => `Generating... (0s${suffix})`,
     statusGeneratingTick: (n, suffix) => `Generating... (${n}s${suffix})`,
     errorStatusCode: (code) => `Error ${code}`,

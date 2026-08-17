@@ -467,3 +467,23 @@ def rename_voice_everywhere(old_name: str, new_name: str) -> None:
                     changed = True
             if changed:
                 _save_chapter_json(project, chapter, data)
+
+
+def replace_voice_in_chapter(
+    project: str, chapter: str, old_name: str, new_name: str
+) -> int:
+    data = _load_chapter_json(project, chapter)
+    if data is None:
+        raise EngineError(404, f"Chapter '{chapter}' not found")
+    if new_name and new_name not in list_voices():
+        raise EngineError(400, f"Voice '{new_name}' not found")
+    count = 0
+    for box in data.get("boxes", []):
+        if box.get("voice") == old_name:
+            box["voice"] = new_name
+            count += 1
+    if count:
+        _save_chapter_json(project, chapter, data)
+    return count
+
+
