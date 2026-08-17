@@ -1,0 +1,40 @@
+.eq-slider-grid {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.eq-band-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 32px;
+}
+
+.eq-band-slider-wrap {
+    height: 140px;
+    width: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eq-band-slider {
+    width: 140px;
+    height: 24px;
+    margin: 0;
+    transform: rotate(-90deg);
+    accent-color: var(--color-violet);
+}
+
+.eq-band-value {
+    font-size: 0.75rem;
+    color: var(--color-text);
+}
+
+.eq-band-freq-label {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+}

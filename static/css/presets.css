@@ -1,0 +1,81 @@
+.presets-section {
+    margin-bottom: 16px;
+}
+
+.presets-details summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.presets-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.presets-details summary .caret {
+    display: inline-block;
+    font-size: 0.7rem;
+    transition: transform 0.15s;
+}
+
+.presets-details[open] summary .caret {
+    transform: rotate(90deg);
+}
+
+.presets-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.preset-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.preset-row:hover {
+    border-color: var(--color-accent);
+}
+
+.preset-name {
+    font-size: 0.85rem;
+    color: var(--color-text);
+}
+
+.preset-delete-btn {
+    opacity: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.preset-row:hover .preset-delete-btn {
+    opacity: 1;
+}
+
+.preset-delete-btn:hover {
+    color: #fff;
+    background: #dc3545;
+}

@@ -1,0 +1,196 @@
+.compressor-overlay-backdrop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.compressor-overlay-panel {
+    background: linear-gradient(135deg, var(--color-bg-start), var(--color-bg-end));
+    border: 1px solid var(--color-surface-border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 620px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+.b2b-resize-handle {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 16px;
+    height: 16px;
+    cursor: nwse-resize;
+    z-index: 10;
+    background:
+        linear-gradient(135deg, transparent 0%, transparent 45%, var(--color-text-muted) 45%, var(--color-text-muted) 55%, transparent 55%, transparent 100%),
+        linear-gradient(135deg, transparent 0%, transparent 65%, var(--color-text-muted) 65%, var(--color-text-muted) 75%, transparent 75%, transparent 100%);
+    opacity: 0.6;
+}
+
+.b2b-resize-handle:hover {
+    opacity: 1;
+}
+
+.compressor-overlay-close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 4px;
+    color: var(--color-text-muted);
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.compressor-overlay-close-btn:hover {
+    color: var(--color-text);
+    border-color: var(--color-accent);
+}
+
+.compressor-stepper-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.compressor-knob-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 8px;
+    padding: 10px 6px;
+}
+
+.b2b-overlay-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.b2b-overlay-title {
+    margin: 0;
+    font-size: 1rem;
+    font-family: var(--font-display);
+    color: var(--color-violet);
+}
+
+.b2b-overlay-header .compressor-overlay-close-btn {
+    position: static;
+}
+
+.reverb-knob-grid .compressor-knob-unit {
+    padding: 10px 4px;
+}
+
+.compressor-stepper-label {
+    font-size: 0.65rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.compressor-knob {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--color-knob-highlight), var(--color-bg-start) 70%);
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+    position: relative;
+    cursor: ns-resize;
+    touch-action: none;
+    transition: box-shadow 0.15s;
+}
+
+.compressor-knob:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+}
+
+.compressor-knob-pointer {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    width: 3px;
+    height: 38%;
+    background: var(--color-accent);
+    transform-origin: bottom center;
+    border-radius: 2px;
+    box-shadow: 0 0 4px rgba(232, 130, 60, 0.8);
+    pointer-events: none;
+}
+
+.compressor-knob.dragging {
+    box-shadow: 0 0 0 3px rgba(155, 107, 255, 0.35), 0 0 22px 6px rgba(155, 107, 255, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+.compressor-knob.dragging .compressor-knob-pointer {
+    background: var(--color-violet);
+    box-shadow: 0 0 6px rgba(155, 107, 255, 0.9);
+}
+
+.compressor-stepper-value {
+    font-size: 0.75rem;
+    color: var(--color-text);
+    min-width: 40px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.compressor-stepper-input {
+    width: 48px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-bg-start);
+    border: 1px solid var(--color-accent);
+    border-radius: 4px;
+    padding: 1px 4px;
+    text-align: center;
+}
+
+.compressor-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.compressor-preview-player {
+    flex: 1;
+    min-width: 160px;
+}
+
+.normalize-mode-row,
+.normalize-target-row,
+.semitone-cents-row,
+.compressor-detector-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}

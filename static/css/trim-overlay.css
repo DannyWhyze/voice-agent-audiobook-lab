@@ -1,0 +1,54 @@
+.trim-waveform-container {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    margin-bottom: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-surface-border);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.trim-waveform-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.trim-marker {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--color-violet);
+    cursor: ew-resize;
+    touch-action: none;
+}
+
+.trim-marker-label {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-size: 0.7rem;
+    color: var(--color-text);
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1px 4px;
+    border-radius: 3px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.trim-fade-handle {
+    position: absolute;
+    top: 0;
+    width: 14px;
+    height: 14px;
+    background: var(--color-violet);
+    cursor: ew-resize;
+    touch-action: none;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+
+.trim-fade-handle-out {
+    transform: translateX(-100%);
+}
