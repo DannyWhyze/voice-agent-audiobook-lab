@@ -2,9 +2,25 @@ export function buildPresetsSection({ t, project, effectType, params, refreshFns
   const container = document.createElement("div");
   container.className = "presets-section";
 
+  // Collapsed by default: a saved-presets list otherwise grows with every
+  // save and crowds whatever comes after it in the panel (e.g. the compressor
+  // detector-mode row right above it). See docs/FIXES.md.
+  const details = document.createElement("details");
+  details.className = "presets-details";
+  container.appendChild(details);
+
+  const summary = document.createElement("summary");
+  const caret = document.createElement("span");
+  caret.className = "caret";
+  caret.textContent = "▶";
+  summary.appendChild(caret);
+  const summaryText = document.createElement("span");
+  summary.appendChild(summaryText);
+  details.appendChild(summary);
+
   const list = document.createElement("div");
   list.className = "presets-list";
-  container.appendChild(list);
+  details.appendChild(list);
 
   const saveBtn = document.createElement("button");
   saveBtn.type = "button";
@@ -42,31 +58,31 @@ export function buildPresetsSection({ t, project, effectType, params, refreshFns
       // Presets are a convenience feature -- failing silently just means an empty list.
     }
 
+    summaryText.textContent = t("presetsCount", presets.length);
+
     for (const preset of presets) {
       const row = document.createElement("div");
       row.className = "preset-row";
+      // The whole row loads the preset now (see docs/FIXES.md) -- there's no
+      // separate "Laden" button anymore, only the delete "x" stays its own
+      // element (stopPropagation below keeps a click on it from also loading).
+      row.addEventListener("click", () => {
+        Object.assign(params, preset.params);
+        refreshFns.forEach((refresh) => refresh());
+        onPresetApplied();
+      });
 
       const nameLabel = document.createElement("span");
       nameLabel.className = "preset-name";
       nameLabel.textContent = preset.name;
       row.appendChild(nameLabel);
 
-      const loadBtn = document.createElement("button");
-      loadBtn.type = "button";
-      loadBtn.className = "pause-connector-insert-btn";
-      loadBtn.textContent = t("presetLoad");
-      loadBtn.addEventListener("click", () => {
-        Object.assign(params, preset.params);
-        refreshFns.forEach((refresh) => refresh());
-        onPresetApplied();
-      });
-      row.appendChild(loadBtn);
-
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
-      deleteBtn.className = "pause-connector-insert-btn";
+      deleteBtn.className = "preset-delete-btn";
       deleteBtn.textContent = "✕";
-      deleteBtn.addEventListener("click", async () => {
+      deleteBtn.addEventListener("click", async (event) => {
+        event.stopPropagation();
         await fetch(
           `/projects/${encodeURIComponent(project)}/presets/${effectType}/${encodeURIComponent(preset.name)}`,
           { method: "DELETE" }
