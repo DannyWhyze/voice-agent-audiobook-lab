@@ -700,16 +700,22 @@ async function deleteVariantItems(box, items) {
   if (getCurrentProject() && getCurrentChapterName()) {
     const boxes = Array.from(document.querySelectorAll(".dialog-box"));
     const boxIndex = boxes.indexOf(box);
-    await Promise.all(
-      items
-        .filter((item) => item.filename)
-        .map((item) =>
-          fetch(
-            `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/boxes/${boxIndex}/variants/${encodeURIComponent(item.filename)}`,
-            { method: "DELETE" }
-          )
-        )
-    );
+    // Sequential, not Promise.all: delete_box_variant() (variants.py) does an
+    // unsynchronized read-modify-write of chapter.json (load, remove this one
+    // filename from its own in-memory copy, save). Concurrent DELETE requests
+    // each read chapter.json before the other has written back, so whichever
+    // finishes last silently overwrites the other's removal — the variant's
+    // audio file is gone from disk, but its entry survives in chapter.json
+    // and reappears as an empty placeholder next time the box's variant list
+    // is reloaded from the server (e.g. after any effect apply). See
+    // docs/FIXES.md.
+    for (const item of items) {
+      if (!item.filename) continue;
+      await fetch(
+        `/projects/${encodeURIComponent(getCurrentProject())}/chapters/${encodeURIComponent(getCurrentChapterName())}/boxes/${boxIndex}/variants/${encodeURIComponent(item.filename)}`,
+        { method: "DELETE" }
+      );
+    }
   }
 
   const toDelete = new Set(items);

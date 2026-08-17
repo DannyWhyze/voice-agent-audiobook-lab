@@ -62,7 +62,13 @@ async function deleteCombinedVariant(filename) {
 async function deleteSelectedCombinedVariants() {
   if (selectedCombinedVariants.size === 0) return;
   if (!confirm(t("confirmDeleteVariants", selectedCombinedVariants.size))) return;
-  await Promise.all([...selectedCombinedVariants].map(deleteCombinedVariant));
+  // Sequential, not Promise.all: delete_combined_variant() (variants.py) does
+  // an unsynchronized read-modify-write of chapter.json, same as box variants
+  // (see docs/FIXES.md) — concurrent DELETEs can race and silently drop one
+  // removal from chapter.json even though its file was actually deleted.
+  for (const filename of [...selectedCombinedVariants]) {
+    await deleteCombinedVariant(filename);
+  }
   await refreshCombinedVariantsList();
 }
 
