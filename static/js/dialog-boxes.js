@@ -26,7 +26,7 @@ import {
 } from "./dialog-context.js";
 import { refreshScriptFromBoxes } from "./dialog-script-mode.js";
 import { enqueueGeneration } from "./dialog-queue.js";
-import { saveDialogDraft } from "./dialog.js";
+import { saveDialogDraft, refreshSkillsFilesAfterAgentWrite } from "./dialog.js";
 import { saveCurrentChapter } from "./dialog-projects.js";
 
 const dialogBoxesContainer = document.getElementById("dialog-boxes");
@@ -1239,6 +1239,7 @@ function wireBoxEffectButton({ btn, box, effectType, needProjectKey, routeSegmen
       onHistoryChanged: (history) => {
         saveChatHistoriesEntry(getCurrentProject(), getCurrentChapterName(), boxIndex, history);
       },
+      onMessageComplete: refreshSkillsFilesAfterAgentWrite,
       onClosed,
     }));
   });

@@ -25,6 +25,7 @@ export function openChatOverlay({
   getScriptOverview,
   onApply,
   onHistoryChanged,
+  onMessageComplete,
   onClosed,
 }) {
   const backdrop = document.createElement("div");
@@ -236,6 +237,7 @@ export function openChatOverlay({
 
       chatHistories.set(box, history);
       if (onHistoryChanged) onHistoryChanged(history);
+      if (onMessageComplete) onMessageComplete();
     } catch (error) {
       if (!assistantMessage.content) {
         history.pop();

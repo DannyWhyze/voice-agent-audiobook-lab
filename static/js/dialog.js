@@ -268,6 +268,14 @@ skillsFilesBtn.addEventListener("click", () => openOrFocusSkillsFilesOverlay());
 
 let projectChatOverlayHandle = null;
 
+export function refreshSkillsFilesAfterAgentWrite() {
+  loadSkillsFilesExplorer();
+  if (skillsFilesOverlayHandle) {
+    skillsFilesOverlayHandle.loadFileList();
+    skillsFilesOverlayHandle.refreshCurrentFile();
+  }
+}
+
 export function openOrFocusProjectChatOverlay() {
   if (!getCurrentProject()) {
     alert(t("projectChatNeedProject"));
@@ -284,10 +292,7 @@ export function openOrFocusProjectChatOverlay() {
     onHistoryChanged: (history) => {
       saveProjectChatHistory(getCurrentProject(), history);
     },
-    onMessageComplete: () => {
-      loadSkillsFilesExplorer();
-      if (skillsFilesOverlayHandle) skillsFilesOverlayHandle.loadFileList();
-    },
+    onMessageComplete: refreshSkillsFilesAfterAgentWrite,
     onClosed: () => {
       projectChatOverlayHandle = null;
     },

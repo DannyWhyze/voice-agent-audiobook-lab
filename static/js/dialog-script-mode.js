@@ -18,7 +18,7 @@ import {
   setBoxRecordedName,
   updateSpeakerLabel,
 } from "./dialog-boxes.js";
-import { saveDialogDraft } from "./dialog.js";
+import { saveDialogDraft, refreshSkillsFilesAfterAgentWrite } from "./dialog.js";
 import { saveCurrentChapter } from "./dialog-projects.js";
 import { makeDraggable, makeResizable, registerOverlay, unregisterOverlay } from "./overlays/overlay-chrome.js";
 import { openScriptChatOverlay, setScriptChatHistory } from "./overlays/script-chat-overlay.js";
@@ -214,6 +214,7 @@ function openScriptOverlay() {
         onHistoryChanged: (history) => {
           saveScriptChatHistory(getCurrentProject(), getCurrentChapterName(), history);
         },
+        onMessageComplete: refreshSkillsFilesAfterAgentWrite,
         onClosed: () => {
           scriptChatOverlayHandle = null;
         },

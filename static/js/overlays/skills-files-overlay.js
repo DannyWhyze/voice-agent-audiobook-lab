@@ -100,6 +100,9 @@ export function openSkillsFilesOverlay({ t, initialPath, initialIsNote = false, 
   textarea.className = "skills-files-editor";
   textarea.hidden = true;
   panel.appendChild(textarea);
+  textarea.addEventListener("input", () => {
+    dirty = true;
+  });
 
   const actionRow = document.createElement("div");
   actionRow.className = "skills-files-action-row";
@@ -125,6 +128,7 @@ export function openSkillsFilesOverlay({ t, initialPath, initialIsNote = false, 
 
   let currentPath = null;
   let currentIsNote = false;
+  let dirty = false;
 
   function showError(message) {
     errorLabel.textContent = message;
@@ -215,9 +219,18 @@ export function openSkillsFilesOverlay({ t, initialPath, initialIsNote = false, 
     currentPath = path;
     currentIsNote = isNote;
     textarea.value = data.content;
+    dirty = false;
     textarea.hidden = false;
     actionRow.hidden = false;
     updateActiveButtonHighlight();
+  }
+
+  // Skipped while the user has unsaved local edits (dirty), so an agent's
+  // write to the same file never silently discards in-progress work — see
+  // docs/FIXES.md.
+  async function refreshCurrentFile() {
+    if (!currentPath || dirty) return;
+    await openFile(currentPath, currentIsNote);
   }
 
   newSkillBtn.addEventListener("click", () => {
@@ -297,6 +310,7 @@ export function openSkillsFilesOverlay({ t, initialPath, initialIsNote = false, 
       return;
     }
     savedLabel.hidden = false;
+    dirty = false;
   });
 
   deleteBtn.addEventListener("click", async () => {
@@ -339,6 +353,6 @@ export function openSkillsFilesOverlay({ t, initialPath, initialIsNote = false, 
   });
   document.body.appendChild(backdrop);
 
-  return { ...overlayHandle, openFile, loadFileList };
+  return { ...overlayHandle, openFile, loadFileList, refreshCurrentFile };
 }
 

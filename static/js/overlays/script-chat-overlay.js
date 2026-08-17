@@ -10,7 +10,7 @@ export function setScriptChatHistory(newHistory) {
   reasoningByIndex = new Map();
 }
 
-export function openScriptChatOverlay({ t, chatUrl, getCurrentText, onApply, onAppend, onHistoryChanged, onClosed }) {
+export function openScriptChatOverlay({ t, chatUrl, getCurrentText, onApply, onAppend, onHistoryChanged, onMessageComplete, onClosed }) {
   const backdrop = document.createElement("div");
   backdrop.className = "compressor-overlay-backdrop";
 
@@ -221,6 +221,7 @@ export function openScriptChatOverlay({ t, chatUrl, getCurrentText, onApply, onA
       }
 
       if (onHistoryChanged) onHistoryChanged(history);
+      if (onMessageComplete) onMessageComplete();
     } catch (error) {
       if (!assistantMessage.content) {
         history.pop();
