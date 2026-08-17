@@ -42,25 +42,25 @@ function audioBufferToWav(buffer) {
   return new Blob([bufferArray], { type: "audio/wav" });
 }
 
-async function resampleToTargetWav(blob, targetSampleRate) {
-  const arrayBuffer = await blob.arrayBuffer();
-  const tempCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const decoded = await tempCtx.decodeAudioData(arrayBuffer);
-  await tempCtx.close();
+async function resampleAudioBuffer(buffer, targetSampleRate) {
+  if (buffer.sampleRate === targetSampleRate) {
+    return audioBufferToWav(buffer);
+  }
 
   const offlineCtx = new (window.OfflineAudioContext || window.webkitOfflineAudioContext)(
     1,
-    Math.ceil(decoded.duration * targetSampleRate),
+    Math.ceil(buffer.duration * targetSampleRate),
     targetSampleRate
   );
   const source = offlineCtx.createBufferSource();
-  source.buffer = decoded;
+  source.buffer = buffer;
   source.connect(offlineCtx.destination);
   source.start();
   const rendered = await offlineCtx.startRendering();
 
   return audioBufferToWav(rendered);
 }
+
 
 export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onApplied, onClosed }) {
   const backdrop = document.createElement("div");
@@ -147,10 +147,12 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
   panel.appendChild(actionsRow);
 
   let mediaStream = null;
-  let mediaRecorder = null;
-  let recordedChunks = [];
-  let recordedBlob = null;
   let audioCtx = null;
+  let sourceNode = null;
+  let processorNode = null;
+  let silentGain = null;
+  let pcmChunks = [];
+  let recordedBuffer = null;
   let analyser = null;
   let rafId = null;
   let timerInterval = null;
@@ -176,7 +178,7 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
     startBtn.hidden = false;
     timerLabel.textContent = "00:00";
     levelFill.style.width = "0%";
-    recordedBlob = null;
+    recordedBuffer = null;
   }
 
   function updateLevelMeter() {
@@ -196,7 +198,16 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
   async function startRecording() {
     hideError();
     try {
-      mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // DSP tuned for call intelligibility also colors/flattens a voice's
+      // natural timbre. Recordings can become voice-clone sources ("Als
+      // Stimme speichern" on a box variant), which wants the raw signal.
+      mediaStream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: false,
+        },
+      });
     } catch (error) {
       showError(t("recordMicError", error.message));
       return;
@@ -204,25 +215,34 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     audioCtx = new AudioContextClass();
-    const source = audioCtx.createMediaStreamSource(mediaStream);
+    if (audioCtx.state === "suspended") {
+      // The getUserMedia() prompt above can outlast the click's user
+      // activation window in stricter browsers, leaving a fresh context
+      // suspended. Harmless for the old MediaRecorder path (only the
+      // level meter needed audioCtx running); now onaudioprocess is the
+      // capture path itself, so a still-suspended context means silence.
+      await audioCtx.resume();
+    }
+    sourceNode = audioCtx.createMediaStreamSource(mediaStream);
     analyser = audioCtx.createAnalyser();
     analyser.fftSize = 256;
-    source.connect(analyser);
+    sourceNode.connect(analyser);
     updateLevelMeter();
 
-    recordedChunks = [];
-    mediaRecorder = new MediaRecorder(mediaStream);
-    mediaRecorder.addEventListener("dataavailable", (event) => {
-      if (event.data.size > 0) recordedChunks.push(event.data);
-    });
-    mediaRecorder.addEventListener("stop", () => {
-      recordedBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType });
-      previewPlayer.src = URL.createObjectURL(recordedBlob);
-      previewPlayer.hidden = false;
-      discardBtn.hidden = false;
-      useBtn.hidden = false;
-    });
-    mediaRecorder.start();
+    pcmChunks = [];
+    // ScriptProcessorNode is deprecated but needs no separate worklet
+    // module file - fine for a short box recording. Captures raw PCM
+    // directly, unlike MediaRecorder, which re-encodes through a lossy
+    // codec (WebM/Opus in Chrome/Edge) during capture.
+    processorNode = audioCtx.createScriptProcessor(4096, 1, 1);
+    silentGain = audioCtx.createGain();
+    silentGain.gain.value = 0; // must reach destination to run, but stays silent
+    processorNode.onaudioprocess = (event) => {
+      pcmChunks.push(new Float32Array(event.inputBuffer.getChannelData(0)));
+    };
+    sourceNode.connect(processorNode);
+    processorNode.connect(silentGain);
+    silentGain.connect(audioCtx.destination);
 
     elapsedSeconds = 0;
     timerLabel.textContent = "00:00";
@@ -238,8 +258,18 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
   }
 
   function stopRecording() {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
+    if (processorNode) {
+      processorNode.disconnect();
+      processorNode.onaudioprocess = null;
+      processorNode = null;
+    }
+    if (sourceNode) {
+      sourceNode.disconnect();
+      sourceNode = null;
+    }
+    if (silentGain) {
+      silentGain.disconnect();
+      silentGain = null;
     }
     if (mediaStream) {
       for (const track of mediaStream.getTracks()) track.stop();
@@ -249,9 +279,36 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
       cancelAnimationFrame(rafId);
       rafId = null;
     }
+
+    if (pcmChunks.length > 0 && audioCtx) {
+      let totalLength = 0;
+      for (const chunk of pcmChunks) totalLength += chunk.length;
+      recordedBuffer = audioCtx.createBuffer(1, totalLength, audioCtx.sampleRate);
+      const channelData = recordedBuffer.getChannelData(0);
+      let offset = 0;
+      for (const chunk of pcmChunks) {
+        channelData.set(chunk, offset);
+        offset += chunk.length;
+      }
+      pcmChunks = [];
+
+      previewPlayer.src = URL.createObjectURL(audioBufferToWav(recordedBuffer));
+      previewPlayer.hidden = false;
+      discardBtn.hidden = false;
+      useBtn.hidden = false;
+    } else {
+      // Stopped before any audio frame arrived (instant stop-click, or a
+      // suspended audioCtx despite Step 4's resume() call) - no recording
+      // exists. Go back to a clean recording-ready state instead of
+      // leaving startBtn/stopBtn/discardBtn/useBtn all hidden.
+      showError(t("recordEmptyError"));
+      resetToRecordingPhase();
+    }
+
     if (audioCtx && audioCtx.state !== "closed") {
       audioCtx.close();
     }
+    audioCtx = null;
     clearInterval(timerInterval);
     levelFill.style.width = "0%";
     stopBtn.hidden = true;
@@ -279,7 +336,7 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
   });
 
   useBtn.addEventListener("click", async () => {
-    if (!recordedBlob) return;
+    if (!recordedBuffer) return;
     useBtn.disabled = true;
     discardBtn.disabled = true;
     hideError();
@@ -295,7 +352,7 @@ export function openRecordOverlay({ t, uploadUrl, referenceFramerateUrl, onAppli
         // Fall back to FALLBACK_SAMPLE_RATE if the lookup itself fails.
       }
 
-      const wavBlob = await resampleToTargetWav(recordedBlob, targetSampleRate);
+      const wavBlob = await resampleAudioBuffer(recordedBuffer, targetSampleRate);
       const formData = new FormData();
       formData.append("audio", wavBlob, "recording.wav");
       const response = await fetch(uploadUrl, { method: "POST", body: formData });

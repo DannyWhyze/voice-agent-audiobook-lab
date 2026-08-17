@@ -68,6 +68,7 @@ export const TRANSLATIONS = {
     removeBox: "⚠ Box entfernen",
     removeBoxWarning: "Entfernt diese Box endgültig, inkl. Audio und Chat-Verlauf — nicht rückgängig machbar.",
     noVoice: "keine (Basisstimme)",
+    recordEmptyError: "Keine Aufnahme erkannt. Bitte erneut versuchen.",
     voiceReplaceAllCheckbox: "auch bei allen mit dieser Stimme",
     confirmReplaceVoiceEverywhere: (oldVoice, newVoice, count) =>
       `"${oldVoice}" in ${count} weiteren Box(en) durch "${newVoice}" ersetzen?`,
@@ -349,6 +350,7 @@ export const TRANSLATIONS = {
     removeBox: "⚠ Remove box",
     removeBoxWarning: "Permanently removes this box, including its audio and chat history — cannot be undone.",
     noVoice: "none (base voice)",
+    recordEmptyError: "No recording captured. Please try again.",
     voiceReplaceAllCheckbox: "also for all with this voice",
     confirmReplaceVoiceEverywhere: (oldVoice, newVoice, count) =>
       `Replace "${oldVoice}" with "${newVoice}" in ${count} more box(es)?`,
