@@ -249,6 +249,13 @@ function openScriptOverlay() {
 
 function closeScriptOverlay() {
   if (!scriptOverlayBackdrop) return;
+  // The Skript-Chat is a separate, independently-registered overlay (its own
+  // backdrop on document.body, not nested inside scriptPanel) — without this
+  // it stayed open after the editor closed, with a still-clickable "Übernehmen"
+  // that silently wrote into the now-detached scriptTextarea. See docs/FIXES.md.
+  if (scriptChatOverlayHandle) {
+    scriptChatOverlayHandle.close();
+  }
   if (stopScriptDragging) {
     stopScriptDragging();
     stopScriptDragging = null;

@@ -263,7 +263,7 @@ export function registerOverlay(backdrop, panel, closeOverlay, onClosed) {
   }
   panel.addEventListener("mousedown", bringToFront);
 
-  return { bringToFront };
+  return { bringToFront, close: closeOverlay };
 }
 
 export function closeAllOverlays() {
